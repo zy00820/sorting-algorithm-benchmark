@@ -16,6 +16,9 @@ import random
 
 SEED = 20260721
 
+# 验证用种子：阈值在 SEED 样本上标定后，在该种子样本上做留出验证，避免同一批数据既调参又下结论。
+VALIDATION_SEED = 20260901
+
 
 def _shuffle_swap(a, k, rng):
     """在已排序数组上随机交换 k 对元素。"""
