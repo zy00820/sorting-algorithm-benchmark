@@ -36,7 +36,7 @@ OUT_CSV = os.path.join(HERE, "..", "results.csv")
 
 HEADER = ["规模(n)", "数据分布", "分布说明", "算法", "耗时(ms)",
           "比较次数", "移动/交换次数", "选中算法", "是否选到最优固定算法",
-          "特征(逆序比r/有序段比)", "重复次数", "随机种子"]
+          "特征(逆序比r/有序段比/相等比)", "重复次数", "随机种子"]
 
 
 def _best_of_repeat(fn, data):
@@ -103,7 +103,8 @@ def main():
             ms, cmp_cnt, move_cnt, chosen, feat = run_selector(data)
             best_fixed = min(fixed_times, key=fixed_times.get) if fixed_times else ""
             correct = "是" if chosen == best_fixed else "否"
-            feat_str = f"r={feat['r']}, run={feat['run_ratio']}"
+            feat_str = (f"r={feat['r']}, run={feat['run_ratio']}, "
+                        f"dup={feat['dup_ratio']}")
             rows.append([
                 size, kind, desc, "自适应选择器", round(ms, 4),
                 cmp_cnt, move_cnt, chosen, correct, feat_str, REPEAT, SEED,

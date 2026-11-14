@@ -129,52 +129,75 @@ def heap_sort(arr):
 
 
 def quick_sort(arr):
-    """快速排序：中间基准 + 小阈值切换插入排序（自适应版本）。"""
+    """
+    快速排序（改进版）：三数取中选基准 + 三路划分 + 小区间切换插入排序。
+    - 三数取中：在 lo、mid、hi 三处取中位数作基准，降低选到极端基准的概率；
+    - 三路划分：把区间划分为 <基准、=基准、>基准 三段，相等元素不再重复参与递归，
+      对含较多重复元素的数据更友好；
+    - 小区间（长度 ≤ THRESHOLD）用插入排序，减少递归与基准开销。
+    复杂度：平均 O(n log n)，最坏 O(n²)，不稳定；三路划分主要改善重复元素较多时的表现。
+    """
     a = copy.deepcopy(arr)
     cmp_cnt = 0
     swap_cnt = 0
     THRESHOLD = 16
 
+    def _insertion(lo, hi):
+        nonlocal cmp_cnt, swap_cnt
+        for i in range(lo + 1, hi + 1):
+            key = a[i]
+            j = i - 1
+            while j >= lo:
+                cmp_cnt += 1
+                if a[j] > key:
+                    a[j + 1] = a[j]
+                    j -= 1
+                else:
+                    break
+            a[j + 1] = key
+
     def _sort(lo, hi):
         nonlocal cmp_cnt, swap_cnt
         if hi - lo <= THRESHOLD:
-            # 小区间用插入排序，减少递归与基准开销
-            for i in range(lo + 1, hi + 1):
-                key = a[i]
-                j = i - 1
-                while j >= lo:
-                    cmp_cnt += 1
-                    if a[j] > key:
-                        a[j + 1] = a[j]
-                        j -= 1
-                    else:
-                        break
-                a[j + 1] = key
+            _insertion(lo, hi)
             return
+
         mid = (lo + hi) // 2
+        # 三数取中：比较 lo、mid、hi，使 a[lo] ≤ a[mid] ≤ a[hi]，取 a[mid] 为基准
+        cmp_cnt += 1
+        if a[mid] < a[lo]:
+            a[lo], a[mid] = a[mid], a[lo]
+            swap_cnt += 1
+        cmp_cnt += 1
+        if a[hi] < a[lo]:
+            a[lo], a[hi] = a[hi], a[lo]
+            swap_cnt += 1
+        cmp_cnt += 1
+        if a[hi] < a[mid]:
+            a[mid], a[hi] = a[hi], a[mid]
+            swap_cnt += 1
         pivot = a[mid]
-        i, j = lo, hi
-        while i <= j:
-            while True:
-                cmp_cnt += 1
-                if a[i] >= pivot:
-                    break
+
+        # 三路划分：lt 左侧 < pivot，[lt, gt] 内 == pivot，gt 右侧 > pivot
+        lt, i, gt = lo, lo, hi
+        while i <= gt:
+            cmp_cnt += 1
+            if a[i] < pivot:
+                a[i], a[lt] = a[lt], a[i]
+                swap_cnt += 1
+                lt += 1
                 i += 1
-            while True:
-                cmp_cnt += 1
-                if a[j] <= pivot:
-                    break
-                j -= 1
-            if i <= j:
-                if i != j:
-                    a[i], a[j] = a[j], a[i]
-                    swap_cnt += 1
+            elif a[i] > pivot:
+                a[i], a[gt] = a[gt], a[i]
+                swap_cnt += 1
+                gt -= 1
+            else:
                 i += 1
-                j -= 1
-        if lo < j:
-            _sort(lo, j)
-        if i < hi:
-            _sort(i, hi)
+
+        if lo < lt - 1:
+            _sort(lo, lt - 1)
+        if gt + 1 < hi:
+            _sort(gt + 1, hi)
 
     if len(a) > 1:
         _sort(0, len(a) - 1)
