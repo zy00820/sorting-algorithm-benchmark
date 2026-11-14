@@ -34,7 +34,7 @@ from data_gen import generate, DISTRIBUTIONS, SIZES, REPEAT, SEED
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT_CSV = os.path.join(HERE, "..", "results.csv")
 
-HEADER = ["规模(n)", "数据分布", "分布说明", "算法", "平均耗时(ms)",
+HEADER = ["规模(n)", "数据分布", "分布说明", "算法", "耗时(ms)",
           "比较次数", "移动/交换次数", "选中算法", "是否选到最优固定算法",
           "特征(逆序比r/有序段比)", "重复次数", "随机种子"]
 
